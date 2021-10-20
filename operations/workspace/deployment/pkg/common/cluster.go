@@ -13,7 +13,12 @@ type ClusterType string
 
 // Environment is the cluster environment
 // TODO(prs): Update this struct to include right fields which can map to a file
-type Environment struct{}
+type Environment struct {
+	GetClusterName()
+}
+
+// environment: production
+// environmentShort: prod
 
 const (
 	// ClusterTypeGKE represents a cluster of type Google Kubernetes Engine (GKE)

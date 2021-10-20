@@ -43,5 +43,7 @@ type Config struct {
 
 // initializes workspace cluster names based on the config provided
 func (c *Config) InitializeWorkspaceClusterNames(id string) {
-	panic("I am not implemented yet!")
+	for _, wc := range c.WorkspaceClusters {
+		wc.Name = wc.Prefix + id
+	}
 }

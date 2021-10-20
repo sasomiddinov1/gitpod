@@ -5,6 +5,9 @@
 package prerun
 
 import (
+	"os"
+	"os/exec"
+
 	"github.com/gitpod-io/gitpod/ws-deployment/pkg/common"
 )
 
@@ -13,6 +16,22 @@ type CreateClusterPreruns struct {
 	Cluster        *common.WorkspaceCluster
 	ProjectContext *common.ProjectContext
 	PreRuns        []PreRun
+}
+
+type clusterDoesNotExistPrerun struct {
+	Cluster *common.WorkspaceCluster
+}
+
+func (cdnes *clusterDoesNotExistPrerun) Run() error {
+	// TODO(prs): Check that when executing, do we need to activate a specific service account here
+	cmd := exec.Command("gcloud container clusters describe %s --region %s", cdnes.Cluster.Name, cdnes.Cluster.Region)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err := cmd.Run()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // CreatePreRuns creates a set of pre runs to be executed before actual creation
@@ -33,7 +52,8 @@ func (cp *CreateClusterPreruns) addGKEClusterDoesNotExistPrerun() {
 	if cp.Cluster.ClusterType != common.ClusterTypeGKE {
 		return
 	}
-	panic("I am not implemented yet")
+	cdnes := &clusterDoesNotExistPrerun{cp.Cluster}
+	cp.PreRuns = append(cp.PreRuns, cdnes)
 }
 
 // Fill this to add a check for k3s cluster does not exist
